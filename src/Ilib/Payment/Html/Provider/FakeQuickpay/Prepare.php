@@ -22,7 +22,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_Prepare extends Ilib_Payment_Html_
     public function __construct($merchant, $verificaton_key, $session_id)
     {
         parent::__construct($merchant, $verificaton_key, $session_id);
-        $this->post_destination = 'fake_quickpay_server.php';
+        $this->post_destination = 'fake-quickpay-server';
     }
     
     /**
