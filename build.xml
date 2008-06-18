@@ -4,7 +4,7 @@
     <taskdef classname="phing.tasks.ext.IlibPearDeployerTask" name="peardeploy" />
 
     <property name="package-name" value="${phing.project.name}" />
-    <property name="version" value="0.1.0" />
+    <property name="version" value="0.1.2" />
     <property name="stability" value="alpha" />
     <property name="pear.channel" value="public.intraface.dk" />
 
@@ -52,10 +52,10 @@
             <dependencies>
                 <php minimum_version="5.2.0" />
                 <pear minimum_version="1.6.0" recommended_version="1.6.1" />
-                <package name="Ilib_Payment_Html_Provider_Quickpay" channel="public.intraface.dk" recommended_version="0.1.0" minimum_version="0.1.0" />
+                <package name="Ilib_Payment_Html_Provider_Quickpay" channel="public.intraface.dk" recommended_version="0.1.1" minimum_version="0.1.1" />
                 <package name="HTTP_Request" channel="pear.php.net" recommended_version="1.4.2" minimum_version="1.4.2" />
             </dependencies>
-            <notes>* BC break. New methods, new functionality</notes>
+            <notes>* Corrected dependecy</notes>
         </d51pearpkg2>
     </target>
 
