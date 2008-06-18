@@ -10,6 +10,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
 {
     
     private $md5_secret;
+    public $http_response_body = '[not set]';
     
     public function __construct($verification_key) 
     {
@@ -28,8 +29,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             throw new Exception('Sessions are not working properly. They need to do!');
             exit;
         }
-        
-        
+       
         if(empty($input['cardnum']) || empty($input['cvd'])) {
             return $session['payment_details']['errorpage'];
             exit;
@@ -53,21 +53,21 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
         $client->AddPostData('cardtype', 'Visa');
         $client->AddPostData('transaction', '123');
         $client->AddPostData('md5checkV2', $md5check);
-        
+       
         foreach($session['payment_details'] AS $key => $value) {
             if(substr($key, 0, 7) == 'CUSTOM_') {
                 $client->AddPostData($key, $value);
             } 
         }    
         $request = $client->sendRequest();
- 
+
         if(PEAR::isError($request)) {
             throw new Exception('Error in post reguest: '.$request->getUserInfo());
         }
         
-        $result = $client->getResponseBody();
+        $this->http_response_body = $client->getResponseBody();
         if($client->getResponseCode() != 200) { /* SUCCESS! */
-            throw new Exception('Error in processing the order. We got this message: '. $result);
+            throw new Exception('Error in processing the order. We got this message: '. $this->http_response_body);
         } 
         
         return $session['payment_details']['okpage'];
@@ -80,7 +80,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
         
         foreach($required_fields AS $field) {
             if(!isset($input[$field])) {
-                throw new Exceptin('The field '.$field.' need to be present!');
+                throw new Exception('The field '.$field.' need to be present!');
             }
         }            
         
