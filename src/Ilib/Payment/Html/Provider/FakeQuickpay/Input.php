@@ -1,6 +1,6 @@
 <?php
 /**
- * To control Quickpay <www.quickpay.dk> input page for online payments
+ * To control Fake Quickpay <www.quickpay.dk> input page for online payments
  * 
  * @author sune jensen <sj@sunet.dk>
  * @version 0.0.1
@@ -12,6 +12,18 @@
 class Ilib_Payment_Html_Provider_FakeQuickpay_Input extends Ilib_Payment_Html_Input
 {
     
+    
+    /**
+     * Constructor
+     * 
+     * @param string $merchant merchant number
+     * @param string $verification_key verification key
+     * @param string $session_id session id
+     */
+    public function __construct($merchant, $verification_key, $session_id)
+    {
+        parent::__construct($merchant, $verification_key, $session_id);
+    }
     
     /**
      * Returns a path to a input template matching the provider.
