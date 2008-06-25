@@ -38,6 +38,16 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_Input extends Ilib_Payment_Html_In
          */
         return 'Ilib/Payment/Html/Provider/Quickpay/templates/payment-input-tpl.php';
     }
+    
+    /**
+     * Returns the url to set in front of local urls, to make it secured
+     * 
+     * @return string secure tunnel url
+     */
+    public function getSecureTunnelUrl()
+    {
+        return 'https://secure.quickpay.dk/proxy.php/';
+    }
 }
 
 
