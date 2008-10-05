@@ -29,31 +29,67 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             throw new Exception('Sessions are not working properly. They need to do!');
             exit;
         }
-       
-        if(empty($input['cardnum']) || empty($input['cvd'])) {
-            return $session['payment_details']['errorpage'];
-            exit;
-        }
         
         $time = date('ymdHis');
-        $md5check = md5($session['payment_details']['amount'].$time.$session['payment_details']['ordernum'].'000'.'000'.'Approved'.'test@intraface.dk'.$session['payment_details']['merchant'].$session['payment_details']['currency'].'Visa'.'123'.$this->md5_secret);
-
+        
         require_once 'HTTP/Request.php';
         $client = new HTTP_Request($session['payment_details']['resultpage']);
         $client->setMethod(HTTP_REQUEST_METHOD_POST);
         $client->AddPostData('amount', $session['payment_details']['amount']);
         $client->AddPostData('time', $time);
         $client->AddPostData('ordernum', $session['payment_details']['ordernum']);
-        $client->AddPostData('pbsstat', '000');
-        $client->AddPostData('qpstat', '000');
-        $client->AddPostData('qpstatmsg', 'Approved');
         $client->AddPostData('merchantemail', 'test@intraface.dk');
         $client->AddPostData('merchant', $session['payment_details']['merchant']);
         $client->AddPostData('currency', $session['payment_details']['currency']);
         $client->AddPostData('cardtype', 'Visa');
-        $client->AddPostData('transaction', '123');
+        
+        if(empty($input['cardnum']) || empty($input['cvd'])) {
+            $md5check = md5(
+                $session['payment_details']['amount'].
+                $time.
+                $session['payment_details']['ordernum'].
+                '118'.
+                '001'.
+                'Rejected'.
+                'test@intraface.dk'.
+                $session['payment_details']['merchant'].
+                $session['payment_details']['currency'].
+                'Visa'.
+                '0'.
+                $this->md5_secret
+            );
+            
+            $client->AddPostData('pbsstat', '118');
+            $client->AddPostData('qpstat', '001');
+            $client->AddPostData('qpstatmsg', 'Rejected');
+            $return = $session['payment_details']['errorpage'];
+            
+        }
+        else {
+            $md5check = md5(
+                $session['payment_details']['amount'].
+                $time.
+                $session['payment_details']['ordernum'].
+                '000'.
+                '000'.
+                'Approved'.
+                'test@intraface.dk'.
+                $session['payment_details']['merchant'].
+                $session['payment_details']['currency'].
+                'Visa'.
+                '123'.
+                $this->md5_secret
+            );
+            
+            $client->AddPostData('pbsstat', '000');
+            $client->AddPostData('qpstat', '000');
+            $client->AddPostData('qpstatmsg', 'Approved');
+            $client->AddPostData('transaction', '123');
+            $return = $session['payment_details']['okpage'];
+        }
         $client->AddPostData('md5checkV2', $md5check);
-       
+        
+        
         foreach($session['payment_details'] AS $key => $value) {
             if(substr($key, 0, 7) == 'CUSTOM_') {
                 $client->AddPostData($key, $value);
@@ -70,7 +106,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             throw new Exception('Error in processing the order. We got this message: '. $this->http_response_body);
         } 
         
-        return $session['payment_details']['okpage'];
+        return $return;
     }
     
     
