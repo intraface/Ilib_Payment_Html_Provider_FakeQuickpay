@@ -24,7 +24,6 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
     {
         if (empty($session['payment_details'])) {
             throw new Exception('Sessions are not working properly. They need to do!');
-            exit;
         }
 
         $time = date('ymdHis');
@@ -137,6 +136,5 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
         }
 
         throw new Exception('At this moment this only works with CCI page!');
-
     }
 }
