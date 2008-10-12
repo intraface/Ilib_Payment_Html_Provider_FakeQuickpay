@@ -5,33 +5,30 @@
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
-
 class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
 {
-    
     private $md5_secret;
     public $http_response_body = '[not set]';
-    
-    public function __construct($verification_key) 
+
+    public function __construct($verification_key)
     {
         $this->md5_secret = $verification_key;
     }
-    
+
     /**
-     * Process post data. 
-     * 
-     * @return string redirect location. 
+     * Process post data.
+     *
+     * @return string redirect location.
      */
     public function process($input, &$session)
     {
-        
-        if(empty($session['payment_details'])) {
+        if (empty($session['payment_details'])) {
             throw new Exception('Sessions are not working properly. They need to do!');
             exit;
         }
-        
+
         $time = date('ymdHis');
-        
+
         require_once 'HTTP/Request.php';
         $client = new HTTP_Request($session['payment_details']['resultpage']);
         $client->setMethod(HTTP_REQUEST_METHOD_POST);
@@ -42,8 +39,8 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
         $client->AddPostData('merchant', $session['payment_details']['merchant']);
         $client->AddPostData('currency', $session['payment_details']['currency']);
         $client->AddPostData('cardtype', 'Visa');
-        
-        if(empty($input['cardnum']) || empty($input['cvd'])) {
+
+        if (empty($input['cardnum']) || empty($input['cvd'])) {
             $md5check = md5(
                 $session['payment_details']['amount'].
                 $time.
@@ -58,14 +55,13 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
                 '0'.
                 $this->md5_secret
             );
-            
+
             $client->AddPostData('pbsstat', '118');
             $client->AddPostData('qpstat', '001');
             $client->AddPostData('qpstatmsg', 'Rejected');
             $return = $session['payment_details']['errorpage'];
-            
-        }
-        else {
+
+        } else {
             $md5check = md5(
                 $session['payment_details']['amount'].
                 $time.
@@ -80,7 +76,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
                 '123'.
                 $this->md5_secret
             );
-            
+
             $client->AddPostData('pbsstat', '000');
             $client->AddPostData('qpstat', '000');
             $client->AddPostData('qpstatmsg', 'Approved');
@@ -88,42 +84,42 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             $return = $session['payment_details']['okpage'];
         }
         $client->AddPostData('md5checkV2', $md5check);
-        
-        
-        foreach($session['payment_details'] AS $key => $value) {
-            if(substr($key, 0, 7) == 'CUSTOM_') {
-                $client->AddPostData($key, $value);
-            } 
-        }    
-        $request = $client->sendRequest();
 
-        if(PEAR::isError($request)) {
+
+        foreach ($session['payment_details'] AS $key => $value) {
+            if (substr($key, 0, 7) == 'CUSTOM_') {
+                $client->AddPostData($key, $value);
+            }
+        }
+        $request = $client->sendRequest();
+        if (PEAR::isError($request)) {
             throw new Exception('Error in post reguest: '.$request->getUserInfo());
         }
-        
+
         $this->http_response_body = $client->getResponseBody();
-        if($client->getResponseCode() != 200) { /* SUCCESS! */
+
+        if ($client->getResponseCode() != 200) { /* SUCCESS! */
             throw new Exception('Error in processing the order. We got this message: '. $this->http_response_body);
-        } 
-        
+        }
+
         return $return;
     }
-    
-    
+
+
     public function getPage($input, &$session, $post_destination)
     {
         $required_fields = array('language', 'autocapture', 'ordernum', 'amount', 'currency', 'merchant', 'okpage', 'errorpage', 'resultpage', 'md5checkV2');
-        
-        foreach($required_fields AS $field) {
-            if(!isset($input[$field])) {
+
+        foreach ($required_fields AS $field) {
+            if (!isset($input[$field])) {
                 throw new Exception('The field '.$field.' need to be present!');
             }
-        }            
-        
+        }
+
         $session['payment_details'] = $input;
-        
-        if(!empty($input['ccipage'])) {
-            
+
+        if (!empty($input['ccipage'])) {
+
             $content = file_get_contents(urldecode($input['ccipage']));
             $content = str_replace('###ORDERNUM###', $input['ordernum'], $content);
             $content = str_replace('###CURRENCY###', $input['currency'], $content);
@@ -136,11 +132,11 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             $content = str_replace('###MONTH_OPTIONS###', '<option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>', $content);
             $content = str_replace('###YEAR_OPTIONS###', 'option value="07">2007</option><option value="08">2008</option><option value="09">2009</option><option value="10">2010</option><option value="11">2011</option><option value="12">2012</option><option value="13">2013</option><option value="14">2014</option><option value="15">2015</option><option value="16">2016</option><option value="17">2017</option><option value="18">2018</option><option value="19">2019</option><option value="20">2020</option><option value="21">2021</option><option value="22">2022</option><option value="23">2023</option>', $content);
             $content = str_replace('https://secure.quickpay.dk/quickpay_pay.php', $post_destination, $content);
-            
-            return '<div style="color: red;">TEST SERVER!</div>'.$content; 
+
+            return '<div style="color: red;">TEST SERVER!</div>'.$content;
         }
-        
+
         throw new Exception('At this moment this only works with CCI page!');
-    
+
     }
 }
