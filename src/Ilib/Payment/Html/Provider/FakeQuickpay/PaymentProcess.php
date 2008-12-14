@@ -1,10 +1,4 @@
 <?php
-/*
- * Created on Dec 7, 2007
- *
- * To change the template for this generated file go to
- * Window - Preferences - PHPeclipse - PHP - Code Templates
- */
 class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
 {
     private $md5_secret;
@@ -84,7 +78,6 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
         }
         $client->AddPostData('md5checkV2', $md5check);
 
-
         foreach ($session['payment_details'] AS $key => $value) {
             if (substr($key, 0, 7) == 'CUSTOM_') {
                 $client->AddPostData($key, $value);
@@ -97,7 +90,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
 
         $this->http_response_body = $client->getResponseBody();
 
-        if ($client->getResponseCode() != 200) { /* SUCCESS! */
+        if ($client->getResponseCode() != 200) { // 200 is SUCCESS
             throw new Exception('Error in processing the order. We got this message: '. $this->http_response_body);
         }
 
@@ -109,7 +102,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
     {
         $required_fields = array('language', 'autocapture', 'ordernum', 'amount', 'currency', 'merchant', 'okpage', 'errorpage', 'resultpage', 'md5checkV2');
 
-        foreach ($required_fields AS $field) {
+        foreach ($required_fields as $field) {
             if (!isset($input[$field])) {
                 throw new Exception('The field '.$field.' need to be present!');
             }
@@ -123,7 +116,7 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             $content = str_replace('###ORDERNUM###', $input['ordernum'], $content);
             $content = str_replace('###CURRENCY###', $input['currency'], $content);
             $content = str_replace('###AMOUNT_FORMATTED###', number_format($input['amount']/100, 2, ',', '.'), $content);
-            $content = str_replace('###CARDS###', '<p class="cards">Cards you can use</p><p class="cards"><img src="https://secure.quickpay.dk/gfx/cards/dankort.gif" alt="Dankort" /><img src="https://secure.quickpay.dk/gfx/cards/mastercard.gif" alt="Mastercard" /><img src="https://secure.quickpay.dk/gfx/cards/visa.gif" alt="Visa" /><img src="https://secure.quickpay.dk/gfx/cards/visa-electron.gif" alt="Visa Electron" /><img src="https://secure.quickpay.dk/gfx/cards/jcb.gif" alt="JCB" /></p>', $content);
+            $content = str_replace('###CARDS###', '<p class="cards"><br><img src="https://secure.quickpay.dk/gfx/cards/dankort.gif" alt="Dankort" /> <img src="https://secure.quickpay.dk/gfx/cards/mastercard.gif" alt="Mastercard" /> <img src="https://secure.quickpay.dk/gfx/cards/visa.gif" alt="Visa" /> <img src="https://secure.quickpay.dk/gfx/cards/visa-electron.gif" alt="Visa Electron" /> <img src="https://secure.quickpay.dk/gfx/cards/jcb.gif" alt="JCB" /></p>', $content);
             $content = str_replace('###TXT_CARDNUM###', 'Card number', $content);
             $content = str_replace('###TXT_EXPIR###', 'Date of expiration (mm/yy)', $content);
             $content = str_replace('###TXT_CVD###', 'Card verification data', $content);
@@ -132,7 +125,8 @@ class Ilib_Payment_Html_Provider_FakeQuickpay_PaymentProcess
             $content = str_replace('###YEAR_OPTIONS###', 'option value="07">2007</option><option value="08">2008</option><option value="09">2009</option><option value="10">2010</option><option value="11">2011</option><option value="12">2012</option><option value="13">2013</option><option value="14">2014</option><option value="15">2015</option><option value="16">2016</option><option value="17">2017</option><option value="18">2018</option><option value="19">2019</option><option value="20">2020</option><option value="21">2021</option><option value="22">2022</option><option value="23">2023</option>', $content);
             $content = str_replace('https://secure.quickpay.dk/quickpay_pay.php', $post_destination, $content);
 
-            return '<div style="color: red;">TEST SERVER!</div>'.$content;
+            return '<div style="color: red;">TEST SERVER</div>'
+                . $content;
         }
 
         throw new Exception('At this moment this only works with CCI page!');
